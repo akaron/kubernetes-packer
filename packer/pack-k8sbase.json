@@ -1,0 +1,17 @@
+{
+    "builders": [
+        {
+            "communicator": "ssh",
+            "source_path": "ubuntu/bionic64",
+            "provider": "virtualbox",
+            "type": "vagrant",
+            "box_name": "ksun/k8sbase"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "ansible",
+            "playbook_file": "./bootstrap-playbook.yaml"
+        }
+    ]
+}

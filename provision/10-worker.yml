@@ -1,0 +1,24 @@
+---
+- hosts: worker1 
+  become: yes
+  vars:
+  - worker_ip: 192.168.50.12
+
+  tasks:
+  # - name: Reset Cluster
+  #   command: "{{ item }}"
+  #   with_items:
+  #     - kubeadm reset -f
+  #     - rm -fr /root/.kube
+
+  - name: Ensure kubelet get the argument "node-ip"
+    lineinfile:
+      path: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+      state: present
+      line: Environment="KUBELET_EXTRA_ARGS=--node-ip={{ worker_ip }}"
+    notify:
+      - restart kubelet
+
+  handlers:
+    - name: restart kubelet
+      systemd: name=kubelet daemon_reload=yes enabled=yes state=restarted

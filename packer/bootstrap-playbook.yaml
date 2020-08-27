@@ -1,0 +1,89 @@
+---
+- hosts: all
+  gather_facts: no
+  become: yes
+
+  tasks:
+  - name: update to latest packages
+    apt:
+      upgrade: yes
+      update_cache: yes
+
+  - name: Install packages for apt used over HTTPS and ntp and nfs 
+    apt:
+      name: "{{ packages }}"
+      state: present
+    vars:
+      packages:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg-agent
+      - software-properties-common
+      - ntp
+      - nfs-common
+
+  - name: Add apt signing keys for Docker and kubeadm/kubectl/kubelet
+    apt_key:
+      url: "{{ item }}"
+      state: present
+    with_items:
+      - "https://download.docker.com/linux/ubuntu/gpg"
+      - "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+
+  - name: Add apt repositories
+    apt_repository:
+      repo: "{{ item }}"
+      state: present
+    with_items:
+      - "deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable"
+      - "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+
+  - name: Install docker and its dependecies, and kubeadm/kubectl/kubelet
+    apt: 
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - docker-ce 
+      - docker-ce-cli 
+      - containerd.io
+      - "kubeadm=1.18.3-00"  # verify: adding version pin to this version, i.e. "apt-mark hold kubeadm"
+      - "kubectl=1.18.3-00"
+      - "kubelet=1.18.3-00"
+
+  - name: Add the default user to group docker
+    user:
+      name: ubuntu
+      groups: docker
+      append: yes
+
+  # see https://kubernetes.io/docs/setup/production-environment/container-runtimes/#docker
+  - name: setup the docker daemon (use systemd as cgroup driver)
+    copy:
+      content: |
+        {
+          "exec-opts": ["native.cgroupdriver=systemd"],
+          "log-driver": "json-file",
+          "log-opts": {
+              "max-size": "100m"
+          },
+          "storage-driver": "overlay2"
+        }
+      dest: /etc/docker/daemon.json
+      mode: '0666'
+
+  - name: setup the docker daemon
+    file:
+      path: /etc/systemd/system/docker.service.d
+      state: directory
+
+  - name: Letting iptables see bridged traffic
+    copy:
+      content: |
+        net.bridge.bridge-nf-call-ip6tables = 1
+        net.bridge.bridge-nf-call-iptables = 1
+      dest: /etc/sysctl.d/k8s.conf
+      mode: "0644"
+

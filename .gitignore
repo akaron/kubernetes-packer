@@ -1,0 +1,4 @@
+*.log
+provision/join-command
+.vagrant
+packer/output-vagrant/*

@@ -1,0 +1,51 @@
+---
+# for the first master
+- hosts: master1
+  become: yes
+  vars:
+  - master_ip: 192.168.50.11
+
+  tasks:
+  # - name: Reset Cluster
+  #   command: "{{ item }}"
+  #   with_items:
+  #     - kubeadm reset -f
+  #     - rm -fr /root/.kube
+
+  - name: Initialize kubernetes cluster using the kubeadm config
+    command: kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address {{ master_ip }}
+
+  - name: Generate join command
+    command: kubeadm token create --print-join-command
+    register: join_command
+
+  - name: copy join command to local file
+    become: false
+    local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
+
+  - name: Let regular user to control cluster
+    block:
+      - name: mkdir ~ubuntu/.kube
+        file:
+          path: ~ubuntu/.kube
+          state: directory
+
+      - name: copy ssh keys
+        copy:
+          remote_src: yes
+          src: /root/.ssh
+          dest: /home/ubuntu/.ssh
+
+      - name: copy admin.conf
+        copy:
+          remote_src: yes
+          src: /etc/kubernetes/admin.conf
+          dest: ~ubuntu/.kube/config
+          group: ubuntu
+          owner: ubuntu
+
+  - name: Install calico CNI
+    command: kubectl apply -f https://docs.projectcalico.org/v3.14/manifests/calico.yaml
+    remote_user: ubuntu
+    environment:
+      KUBECONFIG: /home/ubuntu/.kube/config
