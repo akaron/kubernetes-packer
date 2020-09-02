@@ -1,0 +1,14 @@
+{
+  "name": "ksun/k8sbase",
+  "versions": [
+    {
+      "version": "20200902.0",
+      "providers": [
+        {
+          "name": "virtualbox",
+          "url": "./output-vagrant/package.box"
+        }
+      ]
+    }
+  ]
+}
