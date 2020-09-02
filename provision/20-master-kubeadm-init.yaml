@@ -4,7 +4,7 @@
   become: yes
   vars:
   - master_ip: 192.168.50.11
-  - user: ubuntu
+  - user: vagrant
 
   tasks:
   # - name: Reset Cluster
@@ -47,6 +47,13 @@
 
   - name: Install calico CNI
     command: kubectl apply -f https://docs.projectcalico.org/v3.15/manifests/calico.yaml
-    remote_user: "{{ user }}"
+    become_user: "{{ user }}"
     environment:
       KUBECONFIG: "/home/{{ user }}/.kube/config"
+
+  - name: Add helm repo
+    command: "{{ item }}"
+    become_user: "{{ user }}"
+    with_items:
+      - helm repo add stable https://kubernetes-charts.storage.googleapis.com
+      - helm repo update
