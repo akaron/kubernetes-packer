@@ -1,19 +1,39 @@
-# Prepare base image
-If nothing has changed, only need to run this occationally (the upstream
-may update weekly).
+# In short
 ```
 cd packer
 packer build pack-k8sbase.json
-vagrant box add --name k8sbase output-vagrant/package.box
+vagrant box add metadata.json
+cd ..
+vagrant up
+vagrant ssh master1
+sudo su - ubuntu
+kubectl get nodes -o wide
+watch kubectl get pods -n kube-system -o wide
+# wait a bit until nodes/pods are ready
+helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+helm repo update
+helm install prometheus stable/prometheus --version 11.12.0 -f /vagrant/prometheus-values.yaml
+```
+
+# Prepare base image
+If nothing has changed, only need to run this occationally (the upstream
+may update weekly). May need to update the `version` in `metadata.json`.
+```
+cd packer
+packer build pack-k8sbase.json
+vagrant box add metadata.json
+cd ..
 ```
 This will create a vagrant box with essential packages for k8s nodes.
-The box is based on ubuntu 18.04, and the packages include kubeadm, kubectl
+Run `vagrant box list` to find the box.
+The box is based on vagrant box ubuntu 18.04, and the packages include kubeadm, kubectl
 and kubelet fixed at a certain version.
 
-Note that the box name `k8sbase` is used in `Vagrantfile`.
+Note that the box name `ksun/k8sbase` in the json files is also used in `Vagrantfile`.
 
 
 # Bootstrap k8s cluster
+In the main directory
 ```
 vagrant up
 ```
@@ -44,8 +64,12 @@ Run the operations below as user `ubuntu` in the `master` node.
 ```
 helm repo add stable https://kubernetes-charts.storage.googleapis.com/
 helm repo update
-helm install prometheus stable/prometheus --version 11.12.0 --set server.persistentVolume.enabled=false,alertmanager.persistentVolume.enabled=false
+helm install prometheus stable/prometheus --version 11.12.0 -f prometheus-values.yaml
 ```
+The default values can be found https://github.com/helm/charts/blob/master/stable/prometheus/values.yaml
+Here we turn off persistent volumes, and install node exporter to master nodes.
+If use `--set` from command line to turn off persistent volumes: 
+`helm install prometheus stable/prometheus --version 11.12.0 --set server.persistentVolume.enabled=false,alertmanager.persistentVolume.enabled=false`
 
 ## Exposing prometheus port
 ```

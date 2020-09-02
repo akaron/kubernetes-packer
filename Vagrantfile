@@ -4,7 +4,7 @@
 # ENV["LC_ALL"] = "en_US.UTF-8"
 
 Vagrant.configure("2") do |config|
-  config.vm.box = "k8sbase"
+  config.vm.box = "ksun/k8sbase"
   config.vm.provider "virtualbox"
 
   config.vm.define "master1", primary: true do |master|
@@ -20,6 +20,8 @@ Vagrant.configure("2") do |config|
     master.vm.provision "ansible" do |ansible|
       ansible.playbook = "provision/20-master-kubeadm-init.yaml"
     end
+    # TODO?: add provisioning for helm repo add/update and then install prometheus
+
     # open ports for prometheus(9090), grafana(3000), alertmanager(9093)
     # note: if follow README.md, the port 9090 only listen to VM's local, so use a socat to open port 9091 to listen to all
     master.vm.network "forwarded_port", guest: 9091, host: 9091, host_ip: "127.0.0.1"

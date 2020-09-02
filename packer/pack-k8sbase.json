@@ -4,8 +4,7 @@
             "communicator": "ssh",
             "source_path": "ubuntu/bionic64",
             "provider": "virtualbox",
-            "type": "vagrant",
-            "box_name": "ksun/k8sbase"
+            "type": "vagrant"
         }
     ],
     "provisioners": [

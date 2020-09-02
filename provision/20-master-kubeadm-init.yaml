@@ -4,6 +4,7 @@
   become: yes
   vars:
   - master_ip: 192.168.50.11
+  - user: ubuntu
 
   tasks:
   # - name: Reset Cluster
@@ -25,27 +26,27 @@
 
   - name: Let regular user to control cluster
     block:
-      - name: mkdir ~ubuntu/.kube
+      - name: mkdir ~{{ user }}/.kube
         file:
-          path: ~ubuntu/.kube
+          path: "~{{ user }}/.kube"
           state: directory
 
       - name: copy ssh keys
         copy:
           remote_src: yes
           src: /root/.ssh
-          dest: /home/ubuntu/.ssh
+          dest: "/home/{{ user }}/.ssh"
 
       - name: copy admin.conf
         copy:
           remote_src: yes
           src: /etc/kubernetes/admin.conf
-          dest: ~ubuntu/.kube/config
-          group: ubuntu
-          owner: ubuntu
+          dest: "~{{ user }}/.kube/config"
+          group: "{{ user }}"
+          owner: "{{ user }}"
 
   - name: Install calico CNI
-    command: kubectl apply -f https://docs.projectcalico.org/v3.14/manifests/calico.yaml
-    remote_user: ubuntu
+    command: kubectl apply -f https://docs.projectcalico.org/v3.15/manifests/calico.yaml
+    remote_user: "{{ user }}"
     environment:
-      KUBECONFIG: /home/ubuntu/.kube/config
+      KUBECONFIG: "/home/{{ user }}/.kube/config"

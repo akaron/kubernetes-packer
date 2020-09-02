@@ -5,12 +5,6 @@
   - worker_ip: 192.168.50.12
 
   tasks:
-  # - name: Reset Cluster
-  #   command: "{{ item }}"
-  #   with_items:
-  #     - kubeadm reset -f
-  #     - rm -fr /root/.kube
-
   - name: Ensure kubelet get the argument "node-ip"
     lineinfile:
       path: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
