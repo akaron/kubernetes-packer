@@ -3,6 +3,7 @@
   become: yes
   vars:
   - worker_ip: 192.168.50.12
+  - user: vagrant
 
   tasks:
   - name: Ensure kubelet get the argument "node-ip"
@@ -12,6 +13,12 @@
       line: Environment="KUBELET_EXTRA_ARGS=--node-ip={{ worker_ip }}"
     notify:
       - restart kubelet
+
+  - name: create the data volume for prometheus-server
+    file:
+      path: /data/prometheus-data
+      owner: "{{ user }}"
+      state: directory
 
   handlers:
     - name: restart kubelet

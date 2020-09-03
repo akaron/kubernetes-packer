@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: prometheus-pv
+  labels:
+    volume: prometheus-data
+spec:
+  capacity:
+    storage: 3Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    # note: If run inside vagrant and put the path under the shared folder btw. host and VM,
+    #       looks like there are issues due to the FS vboxsf (not sure about details)
+    #       For now just manually copy the data if necessary while restart a new prom-server
+    path: "/data/prometheus-data"
+
+---
+
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: prometheus-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+  selector:
+    matchLabels:
+      volume: prometheus-data

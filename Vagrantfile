@@ -25,7 +25,6 @@ Vagrant.configure("2") do |config|
     # open ports for prometheus(9090), grafana(3000), alertmanager(9093)
     # note: if follow README.md, the port 9090 only listen to VM's local, so use a socat to open port 9091 to listen to all
     master.vm.network "forwarded_port", guest: 9091, host: 9091, host_ip: "127.0.0.1"
-    master.vm.network "forwarded_port", guest: 3000, host: 3000, host_ip: "127.0.0.1"
     master.vm.network "forwarded_port", guest: 9093, host: 9093, host_ip: "127.0.0.1"
   end
 
@@ -42,6 +41,7 @@ Vagrant.configure("2") do |config|
     worker.vm.provision "ansible" do |ansible|
       ansible.playbook = "provision/30-worker-join-playbook.yml"
     end
+    worker.vm.network "forwarded_port", guest: 30300, host: 3000, host_ip: "127.0.0.1"
   end
 
 end
