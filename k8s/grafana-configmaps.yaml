@@ -1,0 +1,21 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: provision
+data:
+  datasource-prometheus: |
+    enemy.types=aliens,monsters
+    player.maximum-lives=5
+  dashboards: |
+    color.good=purple
+    color.bad=yellow
+    allow.textmode=true
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dashboards
+data:
+  node-dashboard: |

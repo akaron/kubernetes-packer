@@ -4,6 +4,7 @@
   vars:
   - worker_ip: 192.168.50.12
   - user: vagrant
+  - data_dir: /data/prometheus-data
 
   tasks:
   - name: Ensure kubelet get the argument "node-ip"
@@ -16,7 +17,7 @@
 
   - name: create the data volume for prometheus-server
     file:
-      path: /data/prometheus-data
+      path: "{{ data_dir }}"
       owner: "{{ user }}"
       state: directory
 

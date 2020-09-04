@@ -6,10 +6,11 @@
 Vagrant.configure("2") do |config|
   config.vm.box = "ksun/k8sbase"
   config.vm.provider "virtualbox"
+  config.vm.synced_folder ".", "/vagrant"
 
   config.vm.define "master1", primary: true do |master|
     master.vm.hostname = "master1"
-    master.vm.network "private_network", ip: "192.168.50.11", virtualbox__intnet: true
+    master.vm.network "private_network", ip: "192.168.50.11"
     master.vm.provider "virtualbox" do |v|
       v.name = "udemy_prometheus1_server"
       v.memory = "1536"
@@ -30,10 +31,10 @@ Vagrant.configure("2") do |config|
 
   config.vm.define "worker1" do |worker|
     worker.vm.hostname = "worker1"
-    worker.vm.network "private_network", ip: "192.168.50.12", virtualbox__intnet: true
+    worker.vm.network "private_network", ip: "192.168.50.12"
     worker.vm.provider "virtualbox" do |v|
       v.name = "udemy_prometheus1_worker"
-      v.memory = "1536"
+      v.memory = "2560"
     end
     worker.vm.provision "ansible" do |ansible|
       ansible.playbook = "provision/10-worker.yml"

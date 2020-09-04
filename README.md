@@ -13,7 +13,7 @@ watch kubectl get nodes,pods -A -o wide
 ```
 Wait a bit until nodes/pods are ready, then:
 ```
-kubectl create -f create-pv.yml
+kubectl create -f k8s/prometheus-pv.yml
 helm install prometheus stable/prometheus --version 11.12.0 -f /vagrant/k8s/prometheus-values.yaml
 export POD_NAME=$(kubectl get pods --namespace default -l "app=prometheus,component=server" -o jsonpath="{.items[0].metadata.name}")
 kubectl --namespace default port-forward $POD_NAME 9090 &
@@ -69,7 +69,7 @@ Note: an alternative way to install prometheus: https://github.com/prometheus-op
 
 ## Start Prometheus (with storage in LocalPath of VM)
 ```
-kubectl create -f /vagrant/k8s/create-pv.yml
+kubectl create -f /vagrant/k8s/prometheus-pv.yml
 helm install prometheus stable/prometheus --version 11.12.0 -f /vagrant/k8s/prometheus-values.yaml
 ```
 The default values can be found https://github.com/helm/charts/blob/master/stable/prometheus/values.yaml
