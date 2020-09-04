@@ -23,33 +23,33 @@ spec:
         name: grafana
         volumeMounts:
           - name: provision-datasource-prometheus
-            mountPath: /etc/grafana/provisioning/datasources/datasource-prometheus.yaml
-            subPath: datasource-prometheus.yaml
+            mountPath: /etc/grafana/provisioning/datasources
           - name: provision-dashboards
-            mountPath: /etc/grafana/provisioning/dashboards/dashboards.yaml
-            subPath: dashboards.yaml
+            mountPath: /etc/grafana/provisioning/dashboards
           - name: dashboards-node-dashboard
-            mountPath: /var/lib/grafana/dashboards/node-dashboard.json
-            subPath: node-dashboard.json
+            mountPath: /var/lib/grafana/dashboards
       volumes:
         - name: provision-datasource-prometheus
-          valueFrom:
-            configMapKeyRef:
-              name: provision
-              key: datasource-prometheus
-              defaultMode: 0644
+          configMap:
+            name: grafana-provision
+            items:
+              - key: datasource-prometheus
+                path: datasource-prometheus.yaml
+            defaultMode: 0644
         - name: provision-dashboards
-          valueFrom:
-            configMapKeyRef:
-              name: provision
-              key: dashboards
-              defaultMode: 0644
+          configMap:
+            name: grafana-provision
+            items:
+              - key: dashboards
+                path: dashboards.yaml
+            defaultMode: 0644
         - name: dashboards-node-dashboard
-          valueFrom:
-            configMapKeyRef:
-              name: dashboards
-              key: node-dashboard
-              defaultMode: 0644
+          configMap:
+            name: grafana-dashboards
+            items:
+              - key: node-dashboard
+                path: node-dashboard.json
+            defaultMode: 0644
 
       dnsPolicy: ClusterFirst
       restartPolicy: Always

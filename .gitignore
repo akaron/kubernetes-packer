@@ -2,3 +2,5 @@
 provision/join-command
 .vagrant
 packer/output-vagrant/*
+old/*
+*.swp
