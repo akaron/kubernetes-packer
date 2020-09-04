@@ -10,13 +10,16 @@ Then `vagrant up` to bring up and provision VMs and `vagrant ssh` into `master1`
 vagrant up
 vagrant ssh master1
 watch kubectl get nodes,pods -A -o wide
-# wait a bit until nodes/pods are ready
-helm install prometheus stable/prometheus --version 11.12.0 -f /vagrant/prometheus-values.yaml
+```
+Wait a bit until nodes/pods are ready, then:
+```
+kubectl create -f create-pv.yml
+helm install prometheus stable/prometheus --version 11.12.0 -f /vagrant/k8s/prometheus-values.yaml
 export POD_NAME=$(kubectl get pods --namespace default -l "app=prometheus,component=server" -o jsonpath="{.items[0].metadata.name}")
 kubectl --namespace default port-forward $POD_NAME 9090 &
 socat TCP4-LISTEN:9091,fork TCP4:localhost:9090 &
 ```
-Then in the browser of host machine, open `http://localhost:9091` for the prometheus.
+Then in the browser of host machine, open `http://localhost:9091` for prometheus.
 
 # Prepare base image
 If nothing has changed, only need to run this occationally (the upstream
@@ -62,18 +65,29 @@ A couple basic verifications are:
 helm is installed during `vagrant up` with the `stable` repo configured.
 Run the operations below as user `vagrant` in the `master` node.
 
-## Start Prometheus (without storage)
+Note: an alternative way to install prometheus: https://github.com/prometheus-operator/kube-prometheus
+
+## Start Prometheus (with storage in LocalPath of VM)
 ```
-helm repo add stable https://kubernetes-charts.storage.googleapis.com/
-helm repo update
-helm install prometheus stable/prometheus --version 11.12.0 -f /vagrant/prometheus-values.yaml
+kubectl create -f /vagrant/k8s/create-pv.yml
+helm install prometheus stable/prometheus --version 11.12.0 -f /vagrant/k8s/prometheus-values.yaml
 ```
 The default values can be found https://github.com/helm/charts/blob/master/stable/prometheus/values.yaml
-Here we turn off persistent volumes, and install node exporter to master nodes.
-If use `--set` from command line to turn off persistent volumes: 
-`helm install prometheus stable/prometheus --version 11.12.0 --set server.persistentVolume.enabled=false,alertmanager.persistentVolume.enabled=false`
+The persistent volume is in `/data/prometheus-data` of node `worker1`. Somehow there are
+problems to use the synced folder (between host and guest VM) `/vagrant`, probably due
+to the filesystem.
+
+## Install Grafana
+```
+kubectl create -f /vagrant/k8s/k8s-grafana.yaml
+```
+The grafana should be ready and serving at `192.168.50.12:30300` (in worker node)
+or in the host machine, open in browser: `http://localhost:3000`.
+For now still need to manually set the user, add the data source, and add dashboards.
+The default user/password is `admin/admin`.
 
 ## Exposing prometheus port
+To access to the prometheus from host machine, one way is:
 ```
 export POD_NAME=$(kubectl get pods --namespace default -l "app=prometheus,component=server" -o jsonpath="{.items[0].metadata.name}")
 kubectl --namespace default port-forward $POD_NAME 9090 &
