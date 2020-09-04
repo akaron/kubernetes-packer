@@ -20,6 +20,8 @@
       owner: "{{ user }}"
       state: directory
 
+  # TODO: template or update the "variables" in prometheus-values.yaml and prometheus-pv.yaml
   handlers:
     - name: restart kubelet
       systemd: name=kubelet daemon_reload=yes enabled=yes state=restarted
+

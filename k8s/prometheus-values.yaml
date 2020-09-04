@@ -1,13 +1,21 @@
 alertmanager:
-  enabled: false
+  enabled: true
   persistentVolume:
-    enabled: false
+    enabled: true
+    mountPath: /data/prometheus-data
+    existingClaim: "prometheus-pvc"
+  securityContext:
+    runAsUser: 1000
+    runAsNonRoot: true
+    runAsGroup: 1000
+    fsGroup: 1000
+
 
 server:
   persistentVolume:
     enabled: true
     existingClaim: "prometheus-pvc"
-    mountPath: /tmp/prometheus-data
+    mountPath: /data/prometheus-data
   securityContext:
     runAsUser: 1000
     runAsNonRoot: true
