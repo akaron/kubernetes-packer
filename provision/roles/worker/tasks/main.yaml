@@ -1,0 +1,30 @@
+- name: Get ip
+  command: cat /tmp/ip_addr
+  register: worker_ip 
+
+- name: Ensure kubelet get the argument "node-ip"
+  lineinfile:
+    path: /etc/systemd/system/kubelet.service.d/10-kubeadm.conf
+    state: present
+    line: Environment="KUBELET_EXTRA_ARGS=--node-ip={{ worker_ip.stdout_lines[0] }}"
+  notify:
+    - restart kubelet
+
+- name: create the data volume for prometheus-server
+  file:
+    path: "{{ data_dir }}"
+    owner: "{{ user }}"
+    state: directory
+
+# TODO: template or update the "variables" in prometheus-values.yaml and prometheus-pv.yaml
+
+- name: Copy join-command to worker node
+  copy:
+    src: ./join-command
+    dest: /tmp/join-command
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Join cluster
+  command: bash /tmp/join-command

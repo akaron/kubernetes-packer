@@ -1,0 +1,8 @@
+- name: Get IP address
+  shell: ip addr show enp0s8 |grep 'inet ' | head -n1 | awk '{print $2}' | cut -d "/" -f 1
+  register: ip_addr
+
+- name: save ip
+  copy:
+    content: "{{ ip_addr.stdout_lines[0] }}"
+    dest: /tmp/ip_addr

@@ -1,0 +1,78 @@
+- name: Get ip
+  command: cat /tmp/ip_addr
+  register: master_ip
+
+- name: Install helm
+  block:
+  - name: Get helm
+    get_url:
+      url: "{{ helm_url }}"
+      dest: /tmp/
+      checksum: "{{ helm_checksum }}"
+
+  - name: unarchive helm
+    unarchive:
+      remote_src: yes
+      src: /tmp/{{ helm_filename }}
+      dest: /tmp
+
+  - name: move helm binaries to PATH
+    become: yes
+    copy:
+      remote_src: yes
+      src: /tmp/linux-amd64/helm 
+      dest: /usr/local/bin/helm
+      mode: "0755"
+
+  - name: remove temporary files
+    file:
+      path: "{{ item }}"
+      state: absent
+    loop:
+      - /tmp/{{ helm_filename }}
+      - /tmp/linux-amd64
+
+- name: Initialize kubernetes cluster using the kubeadm config
+  command: kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address {{ master_ip.stdout_lines[0] }}
+
+- name: Generate join command
+  command: kubeadm token create --print-join-command
+  register: join_command
+
+- name: copy join command to local file
+  become: false
+  local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
+
+- name: Let regular user to control cluster
+  block:
+    - name: mkdir ~{{ user }}/.kube
+      file:
+        path: "~{{ user }}/.kube"
+        state: directory
+
+    - name: copy ssh keys
+      copy:
+        remote_src: yes
+        src: /root/.ssh
+        dest: "/home/{{ user }}/.ssh"
+
+    - name: copy admin.conf
+      copy:
+        remote_src: yes
+        src: /etc/kubernetes/admin.conf
+        dest: "~{{ user }}/.kube/config"
+        group: "{{ user }}"
+        owner: "{{ user }}"
+
+- name: Install calico CNI
+  command: kubectl apply -f https://docs.projectcalico.org/v3.15/manifests/calico.yaml
+  become_user: "{{ user }}"
+  environment:
+    KUBECONFIG: "/home/{{ user }}/.kube/config"
+
+- name: Add helm repo
+  command: "{{ item }}"
+  become_user: "{{ user }}"
+  with_items:
+    - helm repo add stable https://kubernetes-charts.storage.googleapis.com
+    - helm repo update

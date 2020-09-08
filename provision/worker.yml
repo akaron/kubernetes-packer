@@ -1,0 +1,13 @@
+---
+- hosts: worker1
+  become: yes
+  tasks:
+    - import_role:
+        name: common
+
+    - import_role:
+        name: worker
+      vars:
+        user: vagrant
+        data_dir: /data/prometheus-data
+

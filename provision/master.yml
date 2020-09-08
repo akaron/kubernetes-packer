@@ -1,0 +1,15 @@
+---
+- hosts: master1
+  become: yes
+  tasks:
+    - import_role:
+        name: common
+
+    - import_role:
+        name: master
+      vars:
+        helm_version: v3.2.4
+        helm_filename: helm-{{ helm_version }}-linux-amd64.tar.gz
+        helm_url: https://get.helm.sh/{{ helm_filename }}
+        helm_checksum: "sha256:8eb56cbb7d0da6b73cd8884c6607982d0be8087027b8ded01d6b2759a72e34b1"
+        user: vagrant

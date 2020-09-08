@@ -11,6 +11,13 @@ local machine. The k8s cluster will have Prometheus/alertmanager/grafana.
 * Require at least 8 GB of memory
 * Tested in Ubuntu 18.04
 
+# Steps
+* run `run packer build` to build an image for k8s cluster
+* run `vagrant up` to bootstrap a k8s cluster (using ansible)
+* in k8s cluster, 
+    - `prometheus`: create `k8s/prometheus-pv.yaml` and then use helm chart to install
+    - `grafana`: deploy `k8s/grafana-configmaps.yaml` and `k8s/grafana-deployment.yaml`
+
 # Prepare base image
 If nothing else has changed, only need to run this occasionally (the Ubuntu image
 updates roughly weekly).
@@ -60,7 +67,7 @@ Note: an alternative way to install prometheus: https://github.com/prometheus-op
 
 ## Deploy Prometheus (with storage in LocalPath of VM)
 ```
-kubectl create -f /vagrant/k8s/prometheus-pv.yml
+kubectl create -f /vagrant/k8s/prometheus-pv.yaml
 helm install prometheus stable/prometheus --version 11.12.0 -f /vagrant/k8s/prometheus-values.yaml
 ```
 
