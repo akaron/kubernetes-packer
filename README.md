@@ -85,7 +85,13 @@ export POD_NAME=$(kubectl get pods --namespace default -l "app=prometheus,compon
 kubectl --namespace default port-forward $POD_NAME 9090 &
 socat TCP4-LISTEN:9091,fork TCP4:localhost:9090 &
 ```
-Or, one may skip this step and use Grafana instead.
+
+Or, skip this step and use Grafana instead.
+
+Or, use reverse proxy (in the VM) like Caddy or nginx. This may be helpful if
+there are more than one port need to be forwarded.
+
+
 
 # Install Grafana
 ```

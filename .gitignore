@@ -4,3 +4,6 @@ provision/join-command
 packer/output-vagrant/*
 old/*
 *.swp
+*.cert
+*.key
+*.pem
