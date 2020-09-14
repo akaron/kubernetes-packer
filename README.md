@@ -59,6 +59,12 @@ A couple basic verifications are:
   `kubectl run -it busybox --image=busybox:1.28 --rm --restart=Never -- nslookup kubernetes.default`
 
 
+# Install apps
+* [Install prometheus using helm](./k8s/README.md)
+
+----
+delete the following
+
 # Install Prometheus using helm
 helm is installed during `vagrant up` with the `stable` repo configured.
 Run the operations below as user `vagrant` in the `master` node.
