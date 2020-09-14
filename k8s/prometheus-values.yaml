@@ -21,6 +21,14 @@ server:
     runAsNonRoot: true
     runAsGroup: 1000
     fsGroup: 1000
+  ingress:
+    enabled: true
+    hosts:
+      - prometheus.localk8s
+    tls:
+      - secretName: prometheus-tls
+        hosts:
+          - prometheus.localk8s
 
 nodeExporter:
   tolerations:

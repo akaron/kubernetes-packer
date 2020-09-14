@@ -78,6 +78,13 @@ persistent volume is in `/data/prometheus-data` of node `worker1`. Note that the
 are problems to use the synced folder `/vagrant` (if shared by NFS, there's file
 lock issue; if shared type is `Virtualbox`, there's `mmap` issue?)
 
+### TLS/HTTPS support
+See `k8s/README-ingress-with-https.md`. Use the steps there instead of the following.
+
+TODO: merge everything after `Install Prometheus using helm` with the file `k8s/README-ingress-with-https.md`.
+Probably put the TLS here and separate the non-TLS to another separate README.
+
+
 ### Exposing Prometheus port
 To access to the Prometheus from host machine, one way is:
 ```
@@ -90,8 +97,6 @@ Or, skip this step and use Grafana instead.
 
 Or, use reverse proxy (in the VM) like Caddy or nginx. This may be helpful if
 there are more than one port need to be forwarded.
-
-
 
 # Install Grafana
 ```
