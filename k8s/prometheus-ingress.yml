@@ -1,16 +1,16 @@
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
-  name: grafana
+  name: prometheus
   labels:
-    app: grafana
+    app: prometheus
 spec:
   rules:
-  - host: grafana.localk8s
+  - host: prometheus.localk8s
     http:
       paths:
       - path: /
         backend:
-          serviceName: grafana
-          servicePort: 3000
+          serviceName: prometheus-server
+          servicePort: 80
 

@@ -4,6 +4,7 @@ metadata:
   name: prometheus-pv
   labels:
     volume: prometheus-data
+    app: prometheus
 spec:
   capacity:
     storage: 3Gi
@@ -21,6 +22,8 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: prometheus-pvc
+  labels:
+    app: prometheus
 spec:
   accessModes:
     - ReadWriteOnce
