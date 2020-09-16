@@ -2,6 +2,7 @@ apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: prometheus-pv
+  namespace: default
   labels:
     volume: prometheus-data
     app: prometheus
@@ -22,6 +23,7 @@ kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
   name: prometheus-pvc
+  namespace: default
   labels:
     app: prometheus
 spec:
