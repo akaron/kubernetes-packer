@@ -7,3 +7,5 @@ old/*
 *.cert
 *.key
 *.pem
+k8s/tst/*
+k8s/cache/*

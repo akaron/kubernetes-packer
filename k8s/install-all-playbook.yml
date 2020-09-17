@@ -1,0 +1,108 @@
+---
+- hosts: localhost
+  become: no
+  gather_facts: no
+  vars:
+    - KEY_FILE: my-prometheus.key
+    - CERT_FILE: my-prometheus.cert
+    - CERT_NAME: prometheus-tls
+    - HOST: prometheus.localk8s
+    - kubeconfig: "/home/vagrant/.kube/config"
+  tasks:
+    - name: Generate a self-signed certificate
+      vars:
+      command: >
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048 
+        -keyout {{KEY_FILE}} -out {{CERT_FILE}} -subj "/CN={{HOST}}/O={{HOST}}"
+      tags: tls
+
+
+    - name: create kubernete secret for the TLS
+      command: >
+        kubectl create secret tls {{CERT_NAME}} 
+        --key {{KEY_FILE}} --cert {{CERT_FILE}}
+        --kubeconfig={{ kubeconfig }}
+      tags: tls
+
+    - name: Deploy ingress-nginx-controller
+      tags: ingress
+      block:
+      - name: mkdir the cache folder
+        file:
+          path: ./cache
+          state: directory
+
+      - name: Get ingress-nginx controller definition
+        get_url:
+          url: https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.35.0/deploy/static/provider/baremetal/deploy.yaml
+          dest: ./cache/ingress-nginx-controller-v0_35_0.yaml
+          mode: '0644'
+
+      - name: update ingress-nginx controller definition (use my own cert instead of fake from nginx)
+        lineinfile:
+          path: ./cache/ingress-nginx-controller-v0_35_0.yaml
+          insertafter: "            - /nginx-ingress-controller"
+          line:        "            - --default-ssl-certificate=default/{{CERT_NAME}}"
+          state: present
+
+      - name: Deploy Ingress Controller
+        k8s:
+          apply: yes
+          src: ./cache/ingress-nginx-controller-v0_35_0.yaml
+          kubeconfig: "{{ kubeconfig }}"
+          #:wait: yes
+          #wait_timeout: 120
+          #wait_condition:
+          #  reason: "MinimumReplicasUnavailable"
+          #  type: "Available"
+          #kubectl get deployment prometheus-server -o jsonpath='{.status.readyReplicas}'
+        register: ingress_log
+
+      - name: sleep a bit for ingress-nginx-controller
+        wait_for:
+          timeout: 18
+        # delegate_to: localhost
+
+      - name: Wait until the deployment is ready
+        k8s_info:
+          name: ingress-nginx-controller
+          kind: Deployment
+          namespace: ingress-nginx
+        register: deployment_status
+        until: deployment_status.resources[0].status.readyReplicas | int == 1
+        retries: 6
+        delay: 6
+
+      rescue:
+        - name: sleep more for ingress-nginx-controller
+          wait_for:
+            timeout: 18
+
+    - name: Deploy prometheus-pvc
+      tags: prometheus
+      k8s:
+        apply: yes
+        src: prometheus-pvc.yml
+        kubeconfig: "{{ kubeconfig }}"
+
+    - name: Deploy prometheus using helm
+      tags: prometheus
+      command: >
+        helm install prometheus prometheus-community/prometheus -f prometheus-values.yml --kubeconfig {{ kubeconfig }}
+
+    - name: Deploy grafana
+      tags: grafana
+      k8s:
+        apply: yes
+        src: "{{ item }}"
+        kubeconfig: "{{ kubeconfig }}"
+      with_items:
+        - grafana-configmaps.yml
+        - grafana-deployment.yml
+
+    - debug: 
+        msg: |
+          Wait a bit until pods are ready. Then need to port-forward:
+          export HTTPS_NODEPORT=$(kubectl get svc -n ingress-nginx ingress-nginx-controller -o jsonpath="{.spec.ports[1].nodePort}")
+          socat TCP4-LISTEN:9091,fork TCP4:localhost:$HTTPS_NODEPORT &
+      tags: [ grafana, prometheus ]

@@ -57,6 +57,16 @@ sh ./gen_cert.sh
 ```
 It creates self-signed certificate and private key and put them to `kubectl secret`.
 
+## Deploy prometheus and grafana
+```
+kubectl create -f /vagrant/k8s/prometheus-pvc.yml
+helm install prometheus prometheus-community/prometheus -f /vagrant/k8s/prometheus-values.yml
+kubectl create -f /vagrant/k8s/grafana-configmaps.yml
+kubectl create -f /vagrant/k8s/grafana-deployment.yml
+```
+
+Wait a bit until these pods are ready.
+
 
 ## Forward the nodePort for ingress-nginx-controller
 Then find out the port for https and forward it in the guest machine
@@ -71,20 +81,11 @@ Note:
 * again, port 9091 is defined in `../Vagrantfile`
 
 
-## Deploy prometheus and grafana
-```
-kubectl create -f /vagrant/k8s/prometheus-pvc.yml
-helm install prometheus prometheus-community/prometheus -f /vagrant/k8s/prometheus-values.yml
-kubectl create -f /vagrant/k8s/grafana-configmaps.yml
-kubectl create -f /vagrant/k8s/grafana-deployment.yml
-```
-
-Wait a bit until these pods are ready.
-
 ## update /etc/hosts in host machine
 The apps are served at `prometheus.localk8s` and `grafana.localk8s` (run `kubectl get
-ingress` to find out). But the host cannot resolve it. We can simply add these names to
-`/etc/hosts` of host machine. The additional lines may look like:
+ingress` to find out). The `nodePort` of ingress-nginx-controller is exposed. But the host
+cannot resolve it. We can simply add these names to `/etc/hosts` of host machine. The
+additional lines may look like:
 
 ```
 172.28.128.3  prometheus.localk8s

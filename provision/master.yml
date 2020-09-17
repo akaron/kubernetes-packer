@@ -1,6 +1,8 @@
 ---
 - hosts: master1
   become: yes
+  vars:
+    - user_name: vagrant
   tasks:
     - import_role:
         name: common
@@ -12,4 +14,28 @@
         helm_filename: helm-{{ helm_version }}-linux-amd64.tar.gz
         helm_url: https://get.helm.sh/{{ helm_filename }}
         helm_checksum: "sha256:8eb56cbb7d0da6b73cd8884c6607982d0be8087027b8ded01d6b2759a72e34b1"
-        user: vagrant
+        user: "{{ user_name }}"
+
+    - name: install python virtualenv
+      apt:
+        pkg:
+        - virtualenv
+
+    - name: Install ansible
+      become_user: "{{ user_name }}"
+      pip:
+        name:
+        - ansible
+        - openshift
+        - pyyaml
+        virtualenv: /home/{{ user }}/venv
+        virtualenv_python: /usr/bin/python3
+
+    - name: Switch to the Virtualenv by default
+      lineinfile:
+        path: /home/{{ user }}/.bashrc
+        line: |
+          source /home/{{ user_name }}/venv/bin/activate
+          export KUBECONFIG=/home/{{ user_name }}/.kube/config
+        state: present
+
