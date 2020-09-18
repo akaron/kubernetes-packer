@@ -69,4 +69,5 @@ A couple basic verifications are:
 
 # Install apps
 * [Install prometheus using helm](./k8s/README.md)
+* run `sh ./reset_k8s.sh` to reset the k8s cluster (using `kubeadm reset -f` then run k8s provision again)
 
