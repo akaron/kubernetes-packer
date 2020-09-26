@@ -17,9 +17,19 @@
         user: "{{ user_name }}"
 
     - name: install python virtualenv
-      apt:
-        pkg:
-        - virtualenv
+      block:
+        - name: install python virtualenv
+          apt:
+            pkg:
+            - virtualenv
+            state: present
+          register: apt_status
+          until: apt_status is success
+          delay: 6
+          retries: 5
+      rescue:
+        - debug: var=apt_status
+        - apt: name=virtualenv, state=present
 
     - name: Install ansible
       become_user: "{{ user_name }}"
@@ -28,12 +38,12 @@
         - ansible
         - openshift
         - pyyaml
-        virtualenv: /home/{{ user }}/venv
+        virtualenv: /home/{{ user_name }}/venv
         virtualenv_python: /usr/bin/python3
 
     - name: Switch to the Virtualenv by default
       lineinfile:
-        path: /home/{{ user }}/.bashrc
+        path: /home/{{ user_name }}/.bashrc
         line: |
           source /home/{{ user_name }}/venv/bin/activate
           export KUBECONFIG=/home/{{ user_name }}/.kube/config
