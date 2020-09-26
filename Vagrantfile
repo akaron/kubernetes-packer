@@ -31,7 +31,7 @@ Vagrant.configure("2") do |config|
     worker.vm.network "private_network", type: "dhcp"
     worker.vm.provider "virtualbox" do |v|
       v.name = "udemy_prometheus1_worker"
-      v.memory = "2560"
+      v.memory = "4096"
     end
     worker.vm.provision "ansible" do |ansible|
       ansible.playbook = "provision/worker.yml"

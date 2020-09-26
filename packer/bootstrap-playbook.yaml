@@ -13,6 +13,7 @@
     apt:
       name: "{{ packages }}"
       state: present
+      autoremove: yes
     vars:
       packages:
       - apt-transport-https
@@ -49,9 +50,9 @@
       - docker-ce 
       - docker-ce-cli 
       - containerd.io
-      - "kubeadm=1.18.3-00"  # verify: adding version pin to this version, i.e. "apt-mark hold kubeadm"
-      - "kubectl=1.18.3-00"
-      - "kubelet=1.18.3-00"
+      - "kubeadm=1.18.8-00"  # verify: adding version pin to this version, i.e. "apt-mark hold kubeadm"
+      - "kubectl=1.18.8-00"
+      - "kubelet=1.18.8-00"
 
   - name: Add the default user to group docker
     user:

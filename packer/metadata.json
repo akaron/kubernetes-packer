@@ -2,7 +2,7 @@
   "name": "ksun/k8sbase",
   "versions": [
     {
-      "version": "20200902.0",
+      "version": "20200925.0",
       "providers": [
         {
           "name": "virtualbox",
