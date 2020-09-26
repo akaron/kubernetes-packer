@@ -56,7 +56,7 @@
 
   - name: Add the default user to group docker
     user:
-      name: ubuntu
+      name: vagrant
       groups: docker
       append: yes
 
