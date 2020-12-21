@@ -47,10 +47,10 @@
       update_cache: yes
     vars:
       packages:
-      - docker-ce 
-      - docker-ce-cli 
-      - containerd.io
-      - "kubeadm=1.19.5-00"  # verify: adding version pin to this version, i.e. "apt-mark hold kubeadm"
+      - "docker-ce=5:19.03.11~3-0~ubuntu-bionic"
+      - "docker-ce-cli=5:19.03.11~3-0~ubuntu-bionic"
+      - "containerd.io=1.2.13-2"
+      - "kubeadm=1.19.5-00"
       - "kubectl=1.19.5-00"
       - "kubelet=1.19.5-00"
 

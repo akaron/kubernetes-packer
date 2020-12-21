@@ -20,7 +20,7 @@
 
 - name: Copy join-command to worker node
   copy:
-    src: ./join-command
+    src: "{{ playbook_dir }}/files/join-command"
     dest: /tmp/join-command
     owner: root
     group: root
