@@ -10,10 +10,10 @@
     - import_role:
         name: master
       vars:
-        helm_version: v3.2.4
+        helm_version: v3.4.2
         helm_filename: helm-{{ helm_version }}-linux-amd64.tar.gz
         helm_url: https://get.helm.sh/{{ helm_filename }}
-        helm_checksum: "sha256:8eb56cbb7d0da6b73cd8884c6607982d0be8087027b8ded01d6b2759a72e34b1"
+        helm_checksum: "sha256:cacde7768420dd41111a4630e047c231afa01f67e49cc0c6429563e024da4b98"
         user: "{{ user_name }}"
 
     - name: install python virtualenv

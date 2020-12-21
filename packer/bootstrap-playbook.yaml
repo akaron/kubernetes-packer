@@ -37,7 +37,7 @@
       repo: "{{ item }}"
       state: present
     with_items:
-      - "deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable"
+      - "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
       - "deb https://apt.kubernetes.io/ kubernetes-xenial main"
 
   - name: Install docker and its dependecies, and kubeadm/kubectl/kubelet
@@ -50,9 +50,12 @@
       - docker-ce 
       - docker-ce-cli 
       - containerd.io
-      - "kubeadm=1.18.8-00"  # verify: adding version pin to this version, i.e. "apt-mark hold kubeadm"
-      - "kubectl=1.18.8-00"
-      - "kubelet=1.18.8-00"
+      - "kubeadm=1.19.5-00"  # verify: adding version pin to this version, i.e. "apt-mark hold kubeadm"
+      - "kubectl=1.19.5-00"
+      - "kubelet=1.19.5-00"
+
+  - name: Fixed kubernetes version
+    command: apt-mark hold kubelet kubeadm kubectl
 
   - name: Add the default user to group docker
     user:
