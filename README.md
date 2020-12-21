@@ -52,6 +52,8 @@ It will provision two VMs:
 - a `master1` with ip `192.168.50.11`
 - a `worker1` with ip `192.168.50.12`
 
+The provision may need several minutes or more.
+
 ## verify the k8s cluster
 At this point, the k8s cluster is ready. To access to the cluster need to login
 to the `master1` node
