@@ -14,8 +14,8 @@ grafana.
 * Tested in Ubuntu 18.04
 
 # Steps
-Basically just two steps two start a k8s cluster:
-* `Prepare base image` using packer
+Need two steps two start a k8s cluster:
+* **Prepare an image for master and worker** using packer
 * Use `vagrant up` to bootstrap a k8s cluster (create VM using Vagrant and use ansible to bootstrap)
 
 More details below.
@@ -69,7 +69,12 @@ A couple basic verifications are:
   `kubectl run -it busybox --image=busybox:1.28 --rm --restart=Never -- nslookup kubernetes.default`
 
 
-# Install apps
-* [Install prometheus using helm](./k8s/README.md)
-* run `sh ./reset_k8s.sh` to reset the k8s cluster (using `kubeadm reset -f` then run k8s provision again)
+# Use the k8s cluster
+At this point a k8s cluster is ready.
+
+There are examples in [Install prometheus using helm](./k8s/README.md).
+
+## Clean up k8s cluster
+Run `sh ./reset_k8s.sh` to reset the k8s cluster (it will `kubeadm reset -f` then provision a k8s cluster).
+It's faster than `vagrant destroy -f; vagrant up`.
 
