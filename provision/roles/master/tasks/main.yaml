@@ -32,8 +32,16 @@
       - /tmp/{{ helm_filename }}
       - /tmp/linux-amd64
 
+- name: Copy kubeadm config to controlplane
+  template:
+    src: kubeadm.yaml.j2
+    dest: "{{ kubeadm_config_dest }}"
+    mode: '0644'
+  vars:
+    - advertiseAddress: "{{ master_ip.stdout_lines[0] }}"
+
 - name: Initialize kubernetes cluster using the kubeadm config
-  command: kubeadm init --pod-network-cidr=10.244.0.0/16 --apiserver-advertise-address {{ master_ip.stdout_lines[0] }}
+  command: kubeadm init --config {{ kubeadm_config_dest }}
 
 - name: Generate join command
   command: kubeadm token create --print-join-command
