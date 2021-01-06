@@ -1,21 +1,22 @@
 For test only.
 
 The purpose is to use Vagrant and ansible to deploy a two node k8s cluster in
-local machine.  Once the cluster is ready, one can follow instructions in
-[./k8s/README.md](./k8s/README.md) to install Prometheus, alertmanager, and grafana.
+local machine. Rook-ceph cloud storage can be enabled. Once the cluster is ready,
+one can follow instructions in [./k8s/README.md](./k8s/README.md) to install
+Prometheus, alertmanager, and grafana.
 
 
-# requirements
+# Requirements
 * [Vagrant](https://vagrantup.com/)
 * [ansible](https://www.ansible.com/)
 * [Packer](https://packer.io)
-* at least 8 GB of memory
+* Require at least 8 GB of memory
 * Tested in Ubuntu 18.04 and Mac OS 10.15
 
 
 # Steps
-Need two steps two start a k8s cluster:
-* **Prepare an image for master and worker** using packer
+There are two steps:
+* Prepare an vagrant box image for master and worker nodes using packer
 * Use `vagrant up` to bootstrap a k8s cluster (create VM using Vagrant and use
   ansible to bootstrap)
 

@@ -11,7 +11,8 @@ Wait until the pods are ready, then
 sh insert_to_db.sh
 ```
 
-It will insert file into the DB. To read from DB.
+It will insert file into the DB. To read from DB, run
 ```
 sh read_from_db.sh
 ```
+should able to see `hello`.
