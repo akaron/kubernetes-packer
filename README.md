@@ -4,6 +4,7 @@ The purpose is to use Vagrant and ansible to deploy a two node k8s cluster in
 local machine.  Once the cluster is ready, one can follow instructions in
 [./k8s/README.md](./k8s/README.md) to install Prometheus, alertmanager, and grafana.
 
+
 # requirements
 * [Vagrant](https://vagrantup.com/)
 * [ansible](https://www.ansible.com/)
@@ -11,13 +12,18 @@ local machine.  Once the cluster is ready, one can follow instructions in
 * at least 8 GB of memory
 * Tested in Ubuntu 18.04 and Mac OS 10.15
 
+
 # Steps
 Need two steps two start a k8s cluster:
 * **Prepare an image for master and worker** using packer
 * Use `vagrant up` to bootstrap a k8s cluster (create VM using Vagrant and use
   ansible to bootstrap)
 
+Optionally, see [./note_rook-ceph.md](./note_rook-ceph.md) in how to activate
+rook-ceph for cloud native storage. It will use a raw block disk in the VM.
+
 More details below.
+
 
 # Prepare base image
 If nothing else has changed, only need to run this occasionally (the [Ubuntu
@@ -72,25 +78,9 @@ A couple basic verifications are:
 
 
 # Use the k8s cluster
-At this point a k8s cluster is ready.
-
-There are examples in [Install prometheus using helm](./k8s/README.md).
-
-## Install Rook-ceph
-
-From https://rook.io
-
-    Rook is an open source cloud-native storage orchestrator.
-
-    Ceph is a highly scalable distributed storage solution for block storage,
-    object storage, and shared filesystems
-
-In other words, one can deploy Ceph cluster use Rook. Rook-ceph will find and
-use the raw block devices or partitions. And one can use the k8s StorageClass
-[Ceph-rbd](https://kubernetes.io/docs/concepts/storage/storage-classes/#ceph-rbd)
-to provision new disks.
-
-See `note_rook-ceph.md` in how to activate this (need to run a new Vagrant first).
+For instance, follow ([./k8s/README.md](./k8s/README.md)) to install prometheus using helm.
+If rook-ceph is enabled, see [./rook-ceph/README.md](./rook-ceph/README.md) to deploy a mysql
+which utilize the storageClass.
 
 # Clean up k8s cluster
 Run `vagrant destroy` to destroy VMs.
