@@ -2,6 +2,7 @@
 # vi: set ft=ruby :
 
 # ENV["LC_ALL"] = "en_US.UTF-8"
+# ENV["VAGRANT_EXPERIMENTAL"]="disks"
 
 Vagrant.configure("2") do |config|
   config.vm.box = "ksun/k8sbase"
@@ -30,8 +31,9 @@ Vagrant.configure("2") do |config|
     worker.vm.network "private_network", ip: "192.168.50.12"
     worker.vm.provider "virtualbox" do |v|
       v.name = "udemy_prometheus1_worker"
-      v.memory = "4096"
+      v.memory = "2560"
     end
+    # worker.vm.disk :disk, name: "backup", size: "12GB"
     worker.vm.provision "ansible" do |ansible|
       ansible.playbook = "provision/worker.yml"
     end

@@ -2,26 +2,24 @@ For test only.
 
 The purpose is to use Vagrant and ansible to deploy a two node k8s cluster in
 local machine.  Once the cluster is ready, one can follow instructions in
-[./k8s/README.md](./k8s/README.md) to install Prometheus, alertmanager, and
-grafana.
+[./k8s/README.md](./k8s/README.md) to install Prometheus, alertmanager, and grafana.
 
 # requirements
 * [Vagrant](https://vagrantup.com/)
 * [ansible](https://www.ansible.com/)
 * [Packer](https://packer.io)
-  - use it save some provision time
-* Require at least 8 GB of memory
-* Tested in Ubuntu 18.04
+* at least 8 GB of memory
+* Tested in Ubuntu 18.04 and Mac OS 10.15
 
 # Steps
 Need two steps two start a k8s cluster:
 * **Prepare an image for master and worker** using packer
-* Use `vagrant up` to bootstrap a k8s cluster (create VM using Vagrant and use ansible to bootstrap)
+* Use `vagrant up` to bootstrap a k8s cluster (create VM using Vagrant and use
+  ansible to bootstrap)
 
 More details below.
 
 # Prepare base image
-
 If nothing else has changed, only need to run this occasionally (the [Ubuntu
 bionic64 image](https://app.vagrantup.com/ubuntu/boxes/bionic64) updates
 roughly weekly).
@@ -44,6 +42,10 @@ ubuntu image, then run `packer build` to pack a new vagrant box image.
 
 
 # Bootstrap k8s cluster
+Edit the `Vagrantfile` if you want (such as add more memory to the nodes. The
+default is 1.5GB for master and 2.5GB for worker. With this setting, the memory
+usage is at high pressure in my Macbook pro with 8GB of RAM.)
+
 In the main directory
 ```
 vagrant up
@@ -74,7 +76,25 @@ At this point a k8s cluster is ready.
 
 There are examples in [Install prometheus using helm](./k8s/README.md).
 
-## Clean up k8s cluster
-Run `sh ./reset_k8s.sh` to reset the k8s cluster (it will `kubeadm reset -f` then provision a k8s cluster).
-It's faster than `vagrant destroy -f; vagrant up`.
+## Install Rook-ceph
 
+From https://rook.io
+
+    Rook is an open source cloud-native storage orchestrator.
+
+    Ceph is a highly scalable distributed storage solution for block storage,
+    object storage, and shared filesystems
+
+In other words, one can deploy Ceph cluster use Rook. Rook-ceph will find and
+use the raw block devices or partitions. And one can use the k8s StorageClass
+[Ceph-rbd](https://kubernetes.io/docs/concepts/storage/storage-classes/#ceph-rbd)
+to provision new disks.
+
+See `note_rook-ceph.md` in how to activate this (need to run a new Vagrant first).
+
+# Clean up k8s cluster
+Run `vagrant destroy` to destroy VMs.
+Optionally, run `vagrant box remove ksun/k8sbase` to remove the image.
+
+Run `sh ./reset_k8s.sh` to reset the k8s cluster (it will `kubeadm reset -f`
+then provision a k8s cluster).  It's faster than `vagrant destroy -f; vagrant up`.
