@@ -8,6 +8,7 @@ Prometheus, alertmanager, and grafana.
 
 # Requirements
 * [Vagrant](https://vagrantup.com/)
+* [Virtualbox](https://www.virtualbox.org/)
 * [ansible](https://www.ansible.com/)
 * [Packer](https://packer.io)
 * Require at least 8 GB of memory
