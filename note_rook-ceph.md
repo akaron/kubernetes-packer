@@ -12,9 +12,11 @@ use the raw block devices or partitions. And one can use the k8s StorageClass
 to provision new disks.
 
 # Steps
-## Update Vagarntfile
-For worker nodes to access block, need Vagrant to mount a raw block device.
+
+## Update Vagarntfile to mount block device for worker node
+Here show how to prepare a virtual block device for Rook-ceph to use.
 This is still an [experiment feature of Vagrant](https://www.vagrantup.com/docs/experimental).
+Just need to uncomment two lines in the original `Vagrantfile`.
 
 Uncomment this line near the beginning of `Vagrantfile`
 ```
@@ -31,6 +33,16 @@ Then start the VMs
 vagrant destroy -f  # if necessary
 vagrant up
 ```
+
+Alternatively, if there is enough RAM and do not want to use the disk in the VM, can use RAM disk instead, such as:
+```
+$ mkdir /mnt/disks
+$ for vol in vol1 vol2 vol3; do
+    mkdir /mnt/disks/$vol
+    mount -t tmpfs $vol /mnt/disks/$vol
+done
+```
+
 
 ## prepare worker node
 After `vagrant up`, install `lvm` and `ceph-common` in worker node(s)
